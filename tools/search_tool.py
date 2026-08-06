@@ -1,5 +1,8 @@
 import json, random
- 
+import sys, os
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+from rag.retriever import retrieve_with_rewrite
+
 FAQ_DATABASE = [
 
     # ── TECHNICAL ──────────────────────────────────────────────
@@ -160,21 +163,33 @@ TOOLS = [
   }
 ]
 
+#Week 1 (Old Function)
+# def search_faq(query: str, category: str = None, max_results: int = 3) -> list:
+#     """Keyword search — replaced by semantic Vector DB search in Week 2."""
+#     query_words = query.lower().split()
+#     results = []
+#     for faq in FAQ_DATABASE:
+#         if category and faq["category"] != category:
+#             continue
+#         text = (faq["question"] + " " + faq["answer"]).lower()
+#         score = sum(1 for word in query_words if word in text)
+#         if score > 0:
+#             results.append({**faq, "relevance_score": score})
+#     results.sort(key=lambda x: x["relevance_score"], reverse=True)
+#     return results[:max_results]
 
-def search_faq(query: str, category: str = None, max_results: int = 3) -> list:
-    """Keyword search — replaced by semantic Vector DB search in Week 2."""
-    query_words = query.lower().split()
-    results = []
-    for faq in FAQ_DATABASE:
-        if category and faq["category"] != category:
-            continue
-        text = (faq["question"] + " " + faq["answer"]).lower()
-        score = sum(1 for word in query_words if word in text)
-        if score > 0:
-            results.append({**faq, "relevance_score": score})
-    results.sort(key=lambda x: x["relevance_score"], reverse=True)
+def search_faq(query: str,
+               category: str = None,
+               max_results: int = 3) -> list:
+    """
+    Week 2: Semantic search via Pinecone.
+    Calls retrieve_with_rewrite() which runs:
+      rewrite_query() → multi_stage_retrieve() → rerank_results()
+    Returns top max_results matching FAQs.
+    """
+    results = retrieve_with_rewrite(query=query, category=category)
     return results[:max_results]
- 
+
  
 def get_ticket_status(ticket_id: str) -> dict:
     return {"ticket_id":ticket_id,"status":"OPEN",
@@ -186,8 +201,7 @@ def create_escalation(summary: str, category: str, priority: str) -> dict:
     return {"escalation_id":eid,"status":"CREATED",
             "message":f"Escalation {eid} created. Team responds within 4 hours."}
  
-
-
+ 
 def execute_tool(tool_name: str, tool_input: dict) -> str:
     """Router: maps LLM tool request to real Python function."""
     if tool_name == "search_faq":

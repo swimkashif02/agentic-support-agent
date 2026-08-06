@@ -24,6 +24,15 @@ and function calling.
 - FAQ knowledge base with 20 entries
 - All 4 test cases passing
 
+### Week 2 — Complete
+- OpenAI text-embedding-3-small embeddings (1536 dimensions)
+- Pinecone vector database — 20 FAQs ingested as vectors
+- Chunking strategy — question + answer combined per chunk
+- Semantic retrieval — search by meaning not keywords
+- Multi-stage retrieval — broad search (top 10) then rerank to top 3
+- Query rewriting — rule-based optimisation before searching
+- Score threshold 0.30 — tuned for text-embedding-3-small
+
 ## Setup
 
 pip install -r requirements.txt
