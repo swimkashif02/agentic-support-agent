@@ -1,0 +1,182 @@
+[
+  {
+    "id": "eval-001",
+    "input": "My app crashes every time I try to log in",
+    "expected_tool": "search_faq",
+    "expected_faq_id": "faq-001",
+    "expected_action": "ANSWER",
+    "expected_category": "TECHNICAL",
+    "should_escalate": false
+  },
+  {
+    "id": "eval-002",
+    "input": "the login button does nothing",
+    "expected_tool": "search_faq",
+    "expected_faq_id": "faq-001",
+    "expected_action": "ANSWER",
+    "expected_category": "TECHNICAL",
+    "should_escalate": false
+  },
+  {
+    "id": "eval-003",
+    "input": "I was charged twice this month",
+    "expected_tool": "search_faq",
+    "expected_faq_id": "faq-008",
+    "expected_action": "ANSWER",
+    "expected_category": "BILLING",
+    "should_escalate": false
+  },
+  {
+    "id": "eval-004",
+    "input": "Check my ticket TKT-12345",
+    "expected_tool": "get_ticket_status",
+    "expected_faq_id": null,
+    "expected_action": "ANSWER",
+    "expected_category": null,
+    "should_escalate": false
+  },
+  {
+    "id": "eval-005",
+    "input": "my quantum flux capacitor is broken",
+    "expected_tool": "create_escalation",
+    "expected_faq_id": null,
+    "expected_action": "ESCALATE",
+    "expected_category": "TECHNICAL",
+    "should_escalate": true
+  },
+  {
+    "id": "eval-006",
+    "input": "I forgot my password and cannot get in",
+    "expected_tool": "search_faq",
+    "expected_faq_id": "faq-002",
+    "expected_action": "ANSWER",
+    "expected_category": "ACCOUNT",
+    "should_escalate": false
+  },
+  {
+    "id": "eval-007",
+    "input": "How do I change my email address on my account?",
+    "expected_tool": "search_faq",
+    "expected_faq_id": "faq-015",
+    "expected_action": "ANSWER",
+    "expected_category": "ACCOUNT",
+    "should_escalate": false
+  },
+  {
+    "id": "eval-008",
+    "input": "I cannot connect to the internet through your app",
+    "expected_tool": "search_faq",
+    "expected_faq_id": "faq-004",
+    "expected_action": "ANSWER",
+    "expected_category": "TECHNICAL",
+    "should_escalate": false
+  },
+  {
+    "id": "eval-009",
+    "input": "How do I cancel my subscription?",
+    "expected_tool": "search_faq",
+    "expected_faq_id": "faq-009",
+    "expected_action": "ANSWER",
+    "expected_category": "BILLING",
+    "should_escalate": false
+  },
+  {
+    "id": "eval-010",
+    "input": "Can you check ticket TKT-99887 for me?",
+    "expected_tool": "get_ticket_status",
+    "expected_faq_id": null,
+    "expected_action": "ANSWER",
+    "expected_category": null,
+    "should_escalate": false
+  },
+  {
+    "id": "eval-011",
+    "input": "The app keeps freezing on startup since the last update",
+    "expected_tool": "search_faq",
+    "expected_faq_id": "faq-003",
+    "expected_action": "ANSWER",
+    "expected_category": "TECHNICAL",
+    "should_escalate": false
+  },
+  {
+    "id": "eval-012",
+    "input": "I need a refund for last months payment",
+    "expected_tool": "search_faq",
+    "expected_faq_id": "faq-012",
+    "expected_action": "ANSWER",
+    "expected_category": "BILLING",
+    "should_escalate": false
+  },
+  {
+    "id": "eval-013",
+    "input": "My entire team cannot access the dashboard since this morning",
+    "expected_tool": "create_escalation",
+    "expected_faq_id": null,
+    "expected_action": "ESCALATE",
+    "expected_category": "TECHNICAL",
+    "should_escalate": true
+  },
+  {
+    "id": "eval-014",
+    "input": "How do I enable two factor authentication?",
+    "expected_tool": "search_faq",
+    "expected_faq_id": "faq-005",
+    "expected_action": "ANSWER",
+    "expected_category": "ACCOUNT",
+    "should_escalate": false
+  },
+  {
+    "id": "eval-015",
+    "input": "I keep getting error code XR-4429 on every page",
+    "expected_tool": "create_escalation",
+    "expected_faq_id": null,
+    "expected_action": "ESCALATE",
+    "expected_category": "TECHNICAL",
+    "should_escalate": true
+  },
+  {
+    "id": "eval-016",
+    "input": "billed twice",
+    "expected_tool": "search_faq",
+    "expected_faq_id": "faq-008",
+    "expected_action": "ANSWER",
+    "expected_category": "BILLING",
+    "should_escalate": false
+  },
+  {
+    "id": "eval-017",
+    "input": "cannot log in",
+    "expected_tool": "search_faq",
+    "expected_faq_id": "faq-001",
+    "expected_action": "ANSWER",
+    "expected_category": "TECHNICAL",
+    "should_escalate": false
+  },
+  {
+    "id": "eval-018",
+    "input": "My API integration keeps returning error 500 and it is affecting our business",
+    "expected_tool": "create_escalation",
+    "expected_faq_id": null,
+    "expected_action": "ESCALATE",
+    "expected_category": "TECHNICAL",
+    "should_escalate": true
+  },
+  {
+    "id": "eval-019",
+    "input": "I want to update the email address linked to my account",
+    "expected_tool": "search_faq",
+    "expected_faq_id": "faq-015",
+    "expected_action": "ANSWER",
+    "expected_category": "ACCOUNT",
+    "should_escalate": false
+  },
+  {
+    "id": "eval-020",
+    "input": "reset password email not received",
+    "expected_tool": "search_faq",
+    "expected_faq_id": "faq-002",
+    "expected_action": "ANSWER",
+    "expected_category": "ACCOUNT",
+    "should_escalate": false
+  }
+]

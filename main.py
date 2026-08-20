@@ -317,6 +317,7 @@ if __name__ == "__main__":
 
     while True:
         print_menu()
+        print("First Breakpoint")
         choice = input("  Enter your choice (0-5): ").strip()
 
         if choice == "1":

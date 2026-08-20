@@ -42,10 +42,6 @@ def get_embeddings_batch(texts: list[str]) -> list[list[float]]:
     # Sort by index to maintain original order
     return [item.embedding for item in sorted(response.data, key=lambda x: x.index)]
 
-    # from operator import attrgetter
-
-    # return [item.embedding for item in sorted(response.data, key=attrgetter("index"))]
-
 def chunk_faq_entry(faq: dict) -> dict:
     """
     Convert a single FAQ entry into a chunk ready for embedding.

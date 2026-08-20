@@ -1,13 +1,10 @@
 import re
 import sys, os
- 
-# sys.path.insert tells Python to look for imports
-# starting from the PROJECT ROOT, not the rag/ folder.
-# Without this line: "from rag.embeddings import..." fails.
-sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
- 
+import json
+from data.database import get_cached_result, save_to_cache
 from rag.embeddings import get_embedding
 from rag.vector_store import search_vectors
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 def retrieve_faqs(query: str,
                   top_k: int = 3,
@@ -164,23 +161,25 @@ def rewrite_query(query: str) -> str:
     # No rule matched — use original query as-is
     return query
 
-def retrieve_with_rewrite(query: str,
-                           category: str = None) -> list[dict]:
-    """
-    THE ENTRY POINT for all retrieval.
-    This is the ONLY function called from outside this file.
-    search_faq() in search_tool.py calls this function.
- 
-    Full pipeline:
-    1. rewrite_query()       — improve the query if a rule matches
-    2. multi_stage_retrieve() — broad search + rerank + top 3
-    """
-    # Step 1: Try to improve the query
-    rewritten_query = rewrite_query(query)
- 
-    # Step 2: Run multi-stage retrieval with the (possibly rewritten) query
-    return multi_stage_retrieve(rewritten_query, category)
 
+# Update retrieve_with_rewrite() to check cache first:
+def retrieve_with_rewrite(query: str, category: str = None) -> list[dict]:
+    """Full retrieval pipeline with SQLite caching."""
+ 
+    # Step 1: Check cache first
+    cache_key = f"{query}|{category}"
+    cached = get_cached_result(cache_key)
+    if cached is not None:
+        return cached
+ 
+    # Step 2: Not in cache — run full pipeline
+    rewritten_query = rewrite_query(query)
+    result = multi_stage_retrieve(rewritten_query, category)
+ 
+    # Step 3: Store in cache for next time
+    save_to_cache(cache_key, result)
+ 
+    return result
 
 # ── Test retrieval — run with: py -m rag.retriever ──────
 if __name__ == "__main__":
@@ -199,7 +198,7 @@ if __name__ == "__main__":
     ]
  
     for query in test_queries:
-        print(f"\n{"─"*60}")
+        print(f"\n{'─'*60}")
         print(f"  Original query : {query}")
  
         # Step 1: Show what the query rewrites to
@@ -227,13 +226,13 @@ if __name__ == "__main__":
         )
         print(f"  Raw Pinecone scores (top 5):")
         for m in raw.matches:
-            print(f"    {m.score:.4f} | {m.metadata.get("question","N/A")}")
+            print(f"    {m.score:.4f} | {m.metadata.get('question', 'N/A')}")
  
         # Step 3: Show final results after full pipeline
         results = retrieve_with_rewrite(query)
         print(f"  Final results after pipeline:")
         if results:
             for r in results:
-                print(f"    Score {r["score"]} | {r["question"]}")
+                print(f"    Score {r['score']} | {r['question']}")
         else:
             print(f"    No matches — agent will escalate")

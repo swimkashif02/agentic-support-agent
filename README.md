@@ -1,61 +1,61 @@
 # Agentic Customer Support System
-
-A production-ready multi-agent AI system built with Python and OpenAI GPT-4o.
-Demonstrates core agentic AI patterns including tool use, prompt engineering,
-and function calling.
-
+ 
+A production-ready multi-agent AI system for customer support automation.
+Built with Python, OpenAI GPT-4o, Pinecone, and Streamlit.
+ 
+Live demo: [LINK]
+ 
 ## Architecture
-- Triage Agent — Classifies tickets and retrieves FAQ answers via tool use
-- Tool Layer — search_faq, get_ticket_status, create_escalation
-- FAQ Knowledge Base — 20 entries across BILLING, TECHNICAL, and ACCOUNT
-
+- Orchestrator Agent — 5-route routing: TRIAGE / RESEARCH / BOTH / OUT_OF_SCOPE / CLARIFY
+- Triage Agent — FAQ search via RAG, ticket lookup, escalation, long-term memory
+- Research Agent — ticket and escalation analysis, structured report generation
+- Clarify Agent — dynamic context-aware clarification for ambiguous messages
+- RAG Pipeline — Pinecone semantic search with query rewriting and reranking
+- Database — SQLite (local) or Supabase PostgreSQL (cloud) via one-line toggle
+- Cache — persistent Pinecone result cache to avoid repeat API calls
+- Streamlit Frontend — live chat UI with per-session memory
+ 
 ## Tech Stack
 - Python 3.11
-- OpenAI GPT-4o API
-- python-dotenv (environment management)
-
-## What is built
-
-### Week 1 — Complete
-- LLM API integration with OpenAI GPT-4o
-- Prompt engineering — system prompt, chain of thought, guardrails
-- Tool definitions — search_faq, get_ticket_status, create_escalation
-- Complete agentic loop with tool calling
-- FAQ knowledge base with 20 entries
-- All 4 test cases passing
-
-### Week 2 — Complete
-- OpenAI text-embedding-3-small embeddings (1536 dimensions)
-- Pinecone vector database — 20 FAQs ingested as vectors
-- Chunking strategy — question + answer combined per chunk
-- Semantic retrieval — search by meaning not keywords
-- Multi-stage retrieval — broad search (top 10) then rerank to top 3
-- Query rewriting — rule-based optimisation before searching
-- Score threshold 0.30 — tuned for text-embedding-3-small
-
+- OpenAI GPT-4o API + text-embedding-3-small
+- Pinecone (managed vector database)
+- SQLite (local development) / Supabase PostgreSQL (cloud deployment)
+- Streamlit (frontend + Streamlit Community Cloud hosting)
+ 
+## Eval Results
+- Test set: 20 real customer questions across BILLING, TECHNICAL, ACCOUNT
+- Rule-based score: XX/20 (XX%)
+- LLM-as-judge average: X.X/5
+ 
+## Project Files
+- main.py — terminal entry point (all 4 levels + multi-agent system)
+- app.py — Streamlit chat UI
+- agents/orchestrator.py — 5-route orchestrator with memory and CLARIFY
+- agents/triage_agent.py — agentic loop with long-term memory
+- agents/research_agent.py — analysis and report generation
+- agents/clarify_agent.py — dynamic clarification agent
+- rag/retriever.py — RAG pipeline with cache
+- data/database.py — DB_BACKEND toggle (sqlite or supabase)
+- evals/ — test set, graders, results
+ 
 ## Setup
-
+# Install dependencies
 pip install -r requirements.txt
+ 
+# Create database (SQLite — local only)
+python data/setup_db.py
+ 
+# Ingest FAQs into Pinecone (run once)
+py -m rag.ingest
+ 
+# Run terminal version
+python main.py
+ 
+# Run Streamlit UI
+streamlit run app.py
 
-Add your OPENAI_API_KEY to the .env file:
-
-OPENAI_API_KEY=sk-proj-xxxxxxxxxxxxxxxx
-
-## Running
-
-Run the triage agent:
-py -m agents.triage_agent
-
-Run the main API demo:
-py main.py
-
-## Project Structure
-
-agentic-support-agent/
-├── agents/
-│   └── triage_agent.py     ← Complete agentic loop
-├── tools/
-│   └── search_tool.py      ← Tool definitions + FAQ database
-├── main.py                 ← API call demos (3 levels)
-├── .env                    ← API keys (never commit)
-└── requirements.txt
+## Roadmap
+- [x] Week 1 — Foundations + LLM API + Tool Use
+- [x] Week 2 — RAG Pipeline + Pinecone Vector DB
+- [x] Week 3 — Multi-Agent Architecture + Memory + Performance
+- [x] Week 4 — Evals + Streamlit Frontend + Deployment

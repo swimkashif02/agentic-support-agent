@@ -3,4 +3,6 @@ python-dotenv
 requests
 uvicorn
 pydantic
-pinecone
+pinecone 
+supabase
+streamlit

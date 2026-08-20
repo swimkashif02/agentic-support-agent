@@ -2,25 +2,10 @@ import os, json
 from dotenv import load_dotenv
 from openai import OpenAI
 from tools.search_tool import TOOLS, execute_tool
-
+from data.database import load_history
 load_dotenv()
 client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
 
-#Old Prompt
-# SYSTEM_PROMPT = """You are a customer support triage agent for TechCorp.
-
-# YOUR PROCESS (follow this order every time):
-# Step 1: Understand what the customer is asking
-# Step 2: Search the FAQ using the search_faq tool
-# Step 3: If FAQ has a clear answer → respond directly with it
-# Step 4: If customer mentions a ticket number → use get_ticket_status
-# Step 5: If you cannot find a clear answer → use create_escalation
-
-# RULES YOU MUST NEVER BREAK:
-# - Always search the FAQ before answering — never guess
-# - Never invent policy information not in the FAQ
-# - If FAQ returns no relevant results, always escalate
-# - Be professional, empathetic, and concise"""
 SYSTEM_PROMPT = """You are a customer support triage agent for TechCorp.
 
 YOUR PROCESS (follow this order every time):
@@ -39,7 +24,12 @@ RULES YOU MUST NEVER BREAK:
 - If search_faq returns results, ALWAYS use them to answer — never escalate
 - Only escalate if search_faq returns an empty list
 - Be professional, empathetic, and concise
-- Never pass category parameter to search_faq"""
+- Never pass category parameter to search_faq
+- NEVER ask the customer for more details before escalating
+- If you decide to escalate — call create_escalation() immediately
+- Do NOT say you will escalate — just do it
+- If the customer asks about a ticket already looked up in this conversation
+  use the result from conversation history — do not call get_ticket_status again"""
 
 # ── Pre-defined test cases ──────────────────────────────────
 TEST_CASES = [
@@ -50,23 +40,32 @@ TEST_CASES = [
 ]
 
 
-def run_agent(user_message: str) -> str:
+def run_agent(user_message: str, session_id: str = "default") -> dict:
     """
     The core agentic loop — OpenAI version.
-    Runs until message.tool_calls is None (final answer).
-    Safety limit of 5 iterations prevents infinite loops.
+    Now with long-term memory stored in SQLite.
     """
 
     print(f"\n{'='*55}")
     print(f"USER: {user_message}")
     print(f"{'='*55}")
 
+    # Load previous conversation history from SQLite
+    history = load_history(session_id)
+    if history:
+        print(f"  [MEMORY] Loaded {len(history)} previous messages")
+
+    # Build messages — system prompt + history + new message
     messages = [
         {"role": "system", "content": SYSTEM_PROMPT},
+        *history,                                        # ← inject history
         {"role": "user",   "content": user_message}
     ]
 
     max_iterations = 5
+    tools_called = []
+
+    faq_id_returned = None
 
     for iteration in range(max_iterations):
         print(f"\n--- Iteration {iteration + 1} ---")
@@ -88,12 +87,22 @@ def run_agent(user_message: str) -> str:
                 tool_name  = tool_call.function.name
                 tool_input = json.loads(tool_call.function.arguments)
                 tool_id    = tool_call.id
+                tools_called.append(tool_name)
 
                 print(f"  Tool called : {tool_name}")
                 print(f"  With input  : {json.dumps(tool_input)}")
 
                 result = execute_tool(tool_name, tool_input)
                 print(f"  Tool result : {result[:100]}...")
+
+                # Track which FAQ was returned for evals
+                if tool_name == "search_faq":
+                    try:
+                        result_data = json.loads(result)
+                        if result_data and len(result_data) > 0:
+                            faq_id_returned = result_data[0]["id"]  # ← top FAQ ID
+                    except:
+                        pass
 
                 messages.append({
                     "role":         "tool",
@@ -103,10 +112,18 @@ def run_agent(user_message: str) -> str:
 
         else:
             final_answer = message.content
-            print(f"\nFINAL ANSWER:\n{final_answer}")
-            return final_answer
+            return {
+                "final_answer":    final_answer,
+                "tools_called":    tools_called,
+                "faq_id_returned": faq_id_returned  
+            }
 
-    return "Agent reached maximum iterations. Please try again."
+    # return "Agent reached maximum iterations. Please try again."
+    return {
+        "final_answer":    "Agent reached maximum iterations. Please try again.",
+        "tools_called":    tools_called,
+        "faq_id_returned": faq_id_returned  
+    }
 
 
 # ── Menu ────────────────────────────────────────────────────
@@ -127,6 +144,7 @@ def print_menu():
     print()
 
 
+# ── Run All Test Cases ─────────────────────────────────────
 def run_all_test_cases():
     print("\n  Running all 4 test cases...\n")
     for case in TEST_CASES:
