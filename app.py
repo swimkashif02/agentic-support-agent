@@ -27,7 +27,7 @@ st.set_page_config(
  
 # ── Sidebar ──────────────────────────────────────────────
 with st.sidebar:
-    st.title("🤖 TechCorp Support")
+    st.title("🤖 TechCorp Support 00")
     st.markdown("---")
     st.markdown("**Powered by:**")
     st.markdown("• OpenAI GPT-4o")
