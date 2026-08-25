@@ -264,3 +264,34 @@ def save_to_cache(query: str, result: list):
             }).execute()
         except:
             pass
+
+# ── FEEDBACK ─────────────────────────────────────────────
+
+def save_feedback(email: str, feedback: str) -> bool:
+    """Save user feedback — SQLite or Supabase."""
+
+    if DB_BACKEND == "sqlite":
+        try:
+            conn = sqlite3.connect(SQLITE_PATH)
+            cursor = conn.cursor()
+            cursor.execute(
+                "INSERT INTO feedback (email, feedback) VALUES (?, ?)",
+                (email, feedback)
+            )
+            conn.commit()
+            conn.close()
+            return True
+        except Exception as e:
+            print(f"  [FEEDBACK] Failed to save: {e}")
+            return False
+
+    elif DB_BACKEND == "supabase":
+        try:
+            result = get_supabase().table("feedback").insert({
+                "email":    email,
+                "feedback": feedback,
+            }).execute()
+            return bool(result.data)
+        except Exception as e:
+            print(f"  [FEEDBACK] Failed to save: {e}")
+            return False

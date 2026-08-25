@@ -45,10 +45,10 @@ CLARIFY — use when:
 - You cannot confidently route to any of the above
 - Examples: "generate all", "help", "yes", "ok", "do it"
 
-IMPORTNAT - Do NOT use CLARIFY if:
+IMPORTANT - Do NOT use CLARIFY if:
 - The conversation history already makes the intent clear
 - The user is responding to a clarification question you already asked
-- Combining this message with recent hisotry reveals a clear intent
+- Combining this message with recent history reveals a clear intent
 - When in doubt and history exists - make your best inference and route
 
 Respond ONLY with this JSON — no extra text:
@@ -60,10 +60,10 @@ Respond ONLY with this JSON — no extra text:
 # ── Async wrappers for batching ──────────────────────────────
 # These wrap the regular functions so asyncio can run them in parallel
 
-async def run_triage_async(message: str) -> str:
+async def run_triage_async(message: str, session_id: str = "default") -> str:
     """Async wrapper for triage agent — runs in thread pool."""
     loop = asyncio.get_event_loop()
-    return await loop.run_in_executor(None, run_triage, message)
+    return await loop.run_in_executor(None, run_triage, message, session_id)
 
 
 async def run_research_async(message: str) -> str:
@@ -72,16 +72,13 @@ async def run_research_async(message: str) -> str:
     return await loop.run_in_executor(None, run_research, message)
 
 
-async def orchestrate_both(user_message: str) -> str:
+async def orchestrate_both(user_message: str, session_id: str = "default") -> str:
     """Run both agents in parallel when route is BOTH."""
     print("  Running both agents in parallel...")
-
-    # asyncio.gather runs both at the same time
     triage_result, research_result = await asyncio.gather(
-        run_triage_async(user_message),
+        run_triage_async(user_message, session_id),  # ← passed as parameter now
         run_research_async(user_message)
     )
-
     return f"{triage_result}\n\n---\n\n{research_result}"
 
 def orchestrate(user_message: str, session_id: str = "default") -> str:
@@ -141,7 +138,9 @@ def orchestrate(user_message: str, session_id: str = "default") -> str:
         save_message(session_id, "assistant", result)
 
     elif route == "BOTH":
-        result = asyncio.run(orchestrate_both(user_message))
+        result = asyncio.run(orchestrate_both(user_message, session_id)) 
+        if isinstance(result, dict):
+            result = result["final_answer"]
         save_message(session_id, "assistant", result)
 
     elif route == "OUT_OF_SCOPE":

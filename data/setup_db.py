@@ -63,6 +63,16 @@ def create_tables():
         "INSERT OR IGNORE INTO tickets (ticket_id,status,subject,assigned_to) VALUES (?,?,?,?)",
         tickets
     )
+
+     # Feedback table
+    cursor.execute("""
+        CREATE TABLE IF NOT EXISTS feedback (
+            id         INTEGER PRIMARY KEY AUTOINCREMENT,
+            email      TEXT,
+            feedback   TEXT,
+            created_at TEXT DEFAULT CURRENT_TIMESTAMP
+        )
+    """)
  
     conn.commit()
     conn.close()
