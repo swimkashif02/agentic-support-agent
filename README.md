@@ -3,7 +3,7 @@
 A production-ready multi-agent AI system for customer support automation.
 Built with Python, OpenAI GPT-4o, Pinecone, and Streamlit.
  
-Live demo: [LINK]
+Live demo: [(https://agenticsupportagent.streamlit.app/)]
  
 ## Architecture
 - Orchestrator Agent — 5-route routing: TRIAGE / RESEARCH / BOTH / OUT_OF_SCOPE / CLARIFY
